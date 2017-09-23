@@ -80,46 +80,21 @@ class FacebookAPI(object):
 		friendsPage = self.crawler.get(friendsURL)
 		soup = BeautifulSoup(friendsPage, 'html.parser')
 
-
+		# parse for images
 		imageURLs = soup.find_all("img",attrs={"class","_s0 _4ooo _1ve7 _rv img"})
-		imageURLs = [(i['src'],i['aria-label']) for i in imageURLs]
+		self.imageURLs = [(i['src'],i['aria-label']) for i in imageURLs]
 
-		print imageURLs
+	def downloadUrls():
+		pass
 
-
-
-
-
-
+	def uploadToS3():
+		pass
 
 
 
 
 
-
-
-
-
-		time.sleep(200)
-
-
-
-
-		
-
-
-
-		
-
-
-		
-		
-
-
-
-
-
-		
+			
 
 
 
