@@ -5,6 +5,7 @@ import uuid
 import os
 import base64
 import time
+import datetime as dt  
 
 # 3rd Party Dependencies
 # ======================
@@ -13,6 +14,7 @@ import requests
 # AWS Dependencies
 # ================
 import boto3
+from boto3.dynamodb.conditions import Key, Attr
 from chalice import *
 
 app = Chalice(app_name='doorbellAPI')
@@ -22,6 +24,7 @@ app.debug = True
 s3 = boto3.client('s3')
 rekognition = boto3.client('rekognition')
 dynamodb = boto3.resource('dynamodb')
+awsLambda = boto3.client('lambda')
 
 rekognitionCollection = 'decibell'
 
@@ -83,54 +86,37 @@ def identify():
 			'Bytes': buf
 			},
 		MaxFaces=1,
-		FaceMatchThreshold=80
-	)
-
-	if len(response['FaceMatches']) == 0:
-		return False
-	else:
-		return [response,int(time.time())]
-
-
-@app.route('/identifytest',methods=['POST'],content_types=['application/json'], cors=True)
-def identify():
-
-	buf=bytearray(base64.urlsafe_b64decode(app.current_request.raw_body))
-
-	response = rekognition.search_faces_by_image(
-		CollectionId=rekognitionCollection,
-		Image={
-			'Bytes': buf
-			},
-		MaxFaces=1,
 		FaceMatchThreshold=50
 	)
 
 	if len(response['FaceMatches']) == 0:
 		return False
-	else:
-		return response['FaceMatches'][0]['Face']['FaceId']
-		#faceID = response['FaceMatches'][0]['Face']['FaceId']
-	
+
+	rekognitionID = response['FaceMatches'][0]['Face']['FaceId']
+
+	table = dynamodb.Table('People')
+	name = table.query(
+		IndexName='rekognitionID',
+		KeyConditionExpression=Key('rekognitionID').eq(rekognitionID)
+	)["Items"][0]["Name"]
 
 
 
+	table = dynamodb.Table('Here')
+	table.put_item(
+			Item={
+				"date": str(dt.datetime.today().strftime("%m.%d.%Y")),
+				"timestamp": str(int(time.time())),
+				"name": str(name)
+				}
+		)
 
+	awsLambda.invoke(
+		FunctionName='twilioAPI-dev-twilio',
+		InvocationType='Event',
+		Payload=json.dumps({"name":str(name)})
+	)
 
-
-
-
-'''
-@app.lambda_function(name='S3upload')
-def s3upload(event,context):
-	pass
-
-'''
-
-
-
-
-
-
+	return [response,int(time.time())]
 
 
