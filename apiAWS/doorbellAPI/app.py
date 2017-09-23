@@ -4,6 +4,7 @@ import json
 import uuid
 import os
 import base64
+import time
 
 # 3rd Party Dependencies
 # ======================
@@ -23,11 +24,6 @@ rekognition = boto3.client('rekognition')
 dynamodb = boto3.resource('dynamodb')
 
 rekognitionCollection = 'decibell'
-
-
-@app.route('/')
-def index():
-    return {'hello': 'world'}
 
 
 
@@ -69,7 +65,6 @@ def uploadToS3():
 				}
 		)
 
-
 	# delete files from temp
 	for file in os.listdir('/tmp/'):
 		os.remove('/tmp/'+file)
@@ -94,10 +89,31 @@ def identify():
 	if len(response['FaceMatches']) == 0:
 		return False
 	else:
-		res = response['FaceMatches'][0]['Face']['ExternalImageId']
-		matchObj = re.match( r'(.*)_([0-9]+).jpg', res, re.M|re.I)
-		if matchObj: return matchObj.group(1)
-		else: return res
+		return [response,int(time.time())]
+
+
+@app.route('/identifytest',methods=['POST'],content_types=['application/json'], cors=True)
+def identify():
+
+	buf=bytearray(base64.urlsafe_b64decode(app.current_request.raw_body))
+
+	response = rekognition.search_faces_by_image(
+		CollectionId=rekognitionCollection,
+		Image={
+			'Bytes': buf
+			},
+		MaxFaces=1,
+		FaceMatchThreshold=50
+	)
+
+	if len(response['FaceMatches']) == 0:
+		return False
+	else:
+		return response['FaceMatches'][0]['Face']['FaceId']
+		#faceID = response['FaceMatches'][0]['Face']['FaceId']
+	
+
+
 
 
 
