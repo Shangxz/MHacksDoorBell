@@ -1,0 +1,17 @@
+{
+  "dev": {
+    "region": "us-east-1",
+    "api_handler_name": "twilioAPI-dev",
+    "api_handler_arn": "arn:aws:lambda:us-east-1:536824205676:function:twilioAPI-dev",
+    "rest_api_id": "35jlh5cvkh",
+    "lambda_functions": {
+      "twilioAPI-dev-twilio": {
+        "type": "pure_lambda",
+        "arn": "arn:aws:lambda:us-east-1:536824205676:function:twilioAPI-dev-twilio"
+      }
+    },
+    "chalice_version": "1.0.1",
+    "api_gateway_stage": "api",
+    "backend": "api"
+  }
+}
