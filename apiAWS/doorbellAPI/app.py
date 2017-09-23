@@ -79,11 +79,10 @@ def uploadToS3():
 
 @app.route('/identify',methods=['POST'],content_types=['application/json'], cors=True)
 def identify():
-	event = json.loads(app.current_request.raw_body)
 
-	bytearray=(base64.standard_b64decode(event["file"]))
+	buf=bytearray(base64.urlsafe_b64decode(app.current_request.raw_body))
 
-	response = client.search_faces_by_image(
+	response = rekognition.search_faces_by_image(
 		CollectionId=rekognitionCollection,
 		Image={
 			'Bytes': buf
