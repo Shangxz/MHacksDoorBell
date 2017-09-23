@@ -33,8 +33,8 @@ class WebCrawler(object):
 		self.driver.set_window_size(750, 1000)
 		self.driver.set_page_load_timeout(10)
 
-	#def __del__(self):
-		#self.driver.close()
+	def __del__(self):
+		self.driver.close()
 
 	def get(self,url):
 		print ('Making request to \'{}\''.format(url))
@@ -48,8 +48,6 @@ class WebCrawler(object):
 
 	def quit(self):
 		self.driver.close()
-
-
 
 
 
