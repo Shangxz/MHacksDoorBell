@@ -29,9 +29,8 @@ awsLambda = boto3.client('lambda')
 rekognitionCollection = 'decibell'
 
 
-
-@app.route('/facebookUpload',methods=['POST'],content_types=['application/json'], cors=True)
-def uploadToS3():
+@app.route('/trainPhotos',methods=['POST'],content_types=['application/json'], cors=True)
+def trainPhotos():
 	event = json.loads(app.current_request.raw_body)['data']
 
 	for pair in event:
@@ -100,8 +99,6 @@ def identify():
 		KeyConditionExpression=Key('rekognitionID').eq(rekognitionID)
 	)["Items"][0]["Name"]
 
-
-
 	table = dynamodb.Table('Here')
 	table.put_item(
 			Item={
@@ -119,4 +116,53 @@ def identify():
 
 	return [response,int(time.time())]
 
+
+
+
+
+'''
+@app.route('/facebookUpload',methods=['POST'],content_types=['application/json'], cors=True)
+def uploadToS3():
+	event = json.loads(app.current_request.raw_body)['data']
+
+	for pair in event:
+		url = pair[0]
+		name = pair[1]
+		imageID = str(uuid.uuid4())
+		imageIDfile = "{}.jpg".format(imageID)
+
+		# download image to lambda files
+		r = requests.get(url, allow_redirects=True)
+		open('/tmp/'+imageIDfile, 'wb').write(r.content)
+
+		# upload to s3
+		with open('/tmp/'+imageIDfile, 'rb') as data:
+			s3.upload_fileobj(data, 'mhacksdoorbell-trained', imageIDfile)
+
+		faceID = rekognition.index_faces(
+			CollectionId=rekognitionCollection,
+				Image={
+					'S3Object': {
+					'Bucket': 'mhacksdoorbell-trained',
+					'Name': imageIDfile
+					}
+				},
+			) ["FaceRecords"][0]["Face"]["FaceId"]
+
+		# upload to dynamoDB
+		table = dynamodb.Table('People')
+		table.put_item(
+			Item={
+				"Name": str(name),
+				"PictureID": str(imageID),
+				"rekognitionID": str(faceID)
+				}
+		)
+
+	# delete files from temp
+	for file in os.listdir('/tmp/'):
+		os.remove('/tmp/'+file)
+
+	return {"Success":True}
+'''
 
