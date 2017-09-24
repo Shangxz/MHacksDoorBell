@@ -29,54 +29,33 @@ awsLambda = boto3.client('lambda')
 rekognitionCollection = 'decibell'
 
 
-@app.route('/trainPhotos/{name}/{image}',methods=['POST'],content_types=['application/json'], cors=True)
-def trainPhotos(name,image):
+@app.route('/trainPhotos',methods=['POST'],content_types=['application/json'], cors=True)
+def trainPhotos():
+	event = json.loads(app.current_request.raw_body)
+	
+	name = event["name"]
 
-	return {name,image}
+	file = bytearray(base64.urlsafe_b64decode(str(event["file"])))
 
-	'''
-	event = json.loads(app.current_request.raw_body)['data']
+	faceID = rekognition.index_faces(
+		CollectionId=rekognitionCollection,
+		Image={
+			'Bytes': bytearray(file)
+			},
+	)["FaceRecords"][0]["Face"]["FaceId"]
 
-	for pair in event:
-		url = pair[0]
-		name = pair[1]
-		imageID = str(uuid.uuid4())
-		imageIDfile = "{}.jpg".format(imageID)
+	imageID = str(uuid.uuid4())
 
-		# download image to lambda files
-		r = requests.get(url, allow_redirects=True)
-		open('/tmp/'+imageIDfile, 'wb').write(r.content)
-
-		# upload to s3
-		with open('/tmp/'+imageIDfile, 'rb') as data:
-			s3.upload_fileobj(data, 'mhacksdoorbell-trained', imageIDfile)
-
-		faceID = rekognition.index_faces(
-			CollectionId=rekognitionCollection,
-				Image={
-					'S3Object': {
-					'Bucket': 'mhacksdoorbell-trained',
-					'Name': imageIDfile
-					}
-				},
-			) ["FaceRecords"][0]["Face"]["FaceId"]
-
-		# upload to dynamoDB
-		table = dynamodb.Table('People')
-		table.put_item(
-			Item={
-				"Name": str(name),
-				"PictureID": str(imageID),
-				"rekognitionID": str(faceID)
-				}
-		)
-
-	# delete files from temp
-	for file in os.listdir('/tmp/'):
-		os.remove('/tmp/'+file)
+	table = dynamodb.Table('People')
+	table.put_item(
+		Item={
+			"Name": str(name),
+			"FaceID": str(faceID)
+			}
+	)
 
 	return {"Success":True}
-	'''
+
 
 
 @app.route('/identify',methods=['POST'],content_types=['application/json'], cors=True)
@@ -96,12 +75,12 @@ def identify():
 	if len(response['FaceMatches']) == 0:
 		return False
 
-	rekognitionID = response['FaceMatches'][0]['Face']['FaceId']
+	FaceID = response['FaceMatches'][0]['Face']['FaceId']
 
 	table = dynamodb.Table('People')
 	name = table.query(
-		IndexName='rekognitionID',
-		KeyConditionExpression=Key('rekognitionID').eq(rekognitionID)
+		IndexName='FaceID-index',
+		KeyConditionExpression=Key('FaceID').eq(FaceID)
 	)["Items"][0]["Name"]
 
 	table = dynamodb.Table('Here')
@@ -124,7 +103,7 @@ def identify():
 
 
 
-
+'''
 @app.route('/cdnUpload',methods=['POST'],content_types=['application/json'], cors=True)
 def uploadToS3():
 	event = json.loads(app.current_request.raw_body)['data']
@@ -143,7 +122,7 @@ def uploadToS3():
 		with open('/tmp/'+imageIDfile, 'rb') as data:
 			s3.upload_fileobj(data, 'mhacksdoorbell-trained', imageIDfile)
 
-		faceID = rekognition.index_faces(
+		FaceID = rekognition.index_faces(
 			CollectionId=rekognitionCollection,
 				Image={
 					'S3Object': {
@@ -158,7 +137,7 @@ def uploadToS3():
 		table.put_item(
 			Item={
 				"Name": str(name),
-				"PictureID": str(imageID),
+				"FaceID": str(FaceID),
 				"rekognitionID": str(faceID)
 				}
 		)
@@ -168,5 +147,5 @@ def uploadToS3():
 		os.remove('/tmp/'+file)
 
 	return {"Success":True}
-
+'''
 
