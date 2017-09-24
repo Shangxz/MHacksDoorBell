@@ -1,6 +1,6 @@
 # Decibell
 
-An innovative smart door bell that will scan for people that come up to your front porch. It is an alexa integrated doorbell where alexa will narrate the name of the person standing in front of your door, pulling out the data from the user's social profiles as well as through one time user registration.  Furthermore it can act as a first line of defence, as alexa can narrate whether it is safe to open door and the activities happening outside our door.
+An innovative smart door bell that will scan for people that come up to your front porch. It is an alexa integrated doorbell where alexa will narrate the name of the person standing in front of your door, pulling out the data from the user's social profiles as well as through one time user registration and running machine learning and AI apis of Amazon AWS and AZure to train the data.  Furthermore it can act as a first line of defence, as alexa can narrate whether it is safe to open door and the activities happening outside our door.
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
