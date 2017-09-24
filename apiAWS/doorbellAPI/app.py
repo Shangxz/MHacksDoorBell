@@ -29,8 +29,12 @@ awsLambda = boto3.client('lambda')
 rekognitionCollection = 'decibell'
 
 
-@app.route('/trainPhotos',methods=['POST'],content_types=['application/json'], cors=True)
-def trainPhotos():
+@app.route('/trainPhotos/{name}/{image}',methods=['POST'],content_types=['application/json'], cors=True)
+def trainPhotos(name,image):
+
+	return {name,image}
+
+	'''
 	event = json.loads(app.current_request.raw_body)['data']
 
 	for pair in event:
@@ -72,6 +76,7 @@ def trainPhotos():
 		os.remove('/tmp/'+file)
 
 	return {"Success":True}
+	'''
 
 
 @app.route('/identify',methods=['POST'],content_types=['application/json'], cors=True)
@@ -120,8 +125,7 @@ def identify():
 
 
 
-'''
-@app.route('/facebookUpload',methods=['POST'],content_types=['application/json'], cors=True)
+@app.route('/cdnUpload',methods=['POST'],content_types=['application/json'], cors=True)
 def uploadToS3():
 	event = json.loads(app.current_request.raw_body)['data']
 
@@ -164,5 +168,5 @@ def uploadToS3():
 		os.remove('/tmp/'+file)
 
 	return {"Success":True}
-'''
+
 
