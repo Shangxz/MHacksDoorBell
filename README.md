@@ -12,6 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 Python 2.7
 Node.js
 React.Js
+OpenCv
 ```
 
 ### Installing
