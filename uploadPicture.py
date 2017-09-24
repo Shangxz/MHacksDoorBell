@@ -17,7 +17,7 @@ import boto3
 # Globals
 # =======
 url = 'https://xry68cyt39.execute-api.us-east-1.amazonaws.com/api/identify'
-azureurl = 'https://13.92.254.54:8080/api'
+azureurl = "http://13.92.254.54:8080/api"
 success = 0
 
 def watch():
@@ -89,12 +89,18 @@ def uploadImageToS3(fileName):
     print s3.upload_file(fileName, "mhacksxgmss", fileName)
     s3url = "https://s3.amazonaws.com/mhacksxgmss/"+fileName
     print s3url
-    headers={
-        'content-type':"application/json",
-        'cache-control':"no-cache",
-        'postman-token':"58ac7346-f1cd-3e29-869f-b6bb34eadc75",
+    headers = {
+        'content-type': "application/json",
+        'cache-control': "no-cache",
+        'postman-token': "58ac7346-f1cd-3e29-869f-b6bb34eadc75"
         }
-    print requests.post(azureurl, data=json.dumps({"url":s3url}), headers=headers)
+    payload = json.dumps({"url":s3url})
+    data = requests.request("POST", azureurl, data=payload, headers=headers).text
+    
+    dynamodb = boto3.resource("dynamodb")
+    actionstable=dynamodb.Table("actions")
+    actionstable.put_item(Item={"action":1,"description":data})
+    
     return
 
 if __name__ == '__main__':
