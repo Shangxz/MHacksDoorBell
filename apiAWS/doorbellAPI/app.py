@@ -70,7 +70,7 @@ def identify():
 			'Bytes': buf
 			},
 		MaxFaces=1,
-		FaceMatchThreshold=50
+		FaceMatchThreshold=65
 	)
 
 	if len(response['FaceMatches']) == 0:
