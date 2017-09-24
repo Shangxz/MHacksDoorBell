@@ -42,7 +42,7 @@ docs.opencv.org › OpenCV Tutorials › Introduction to OpenCV
 ``````````
 ## Deployment
 
-This is an Raspberry Pie based application, however it can be run on windows/mac. Web services are mostly on AWS and Microsoft Azure.
+This is an Raspberry Pie based application, however it can be run on windows/mac. Web services, Machine learning and AI cognitive abilities APIs are mostly on AWS and Microsoft Azure.
 
 ## Built With
 
