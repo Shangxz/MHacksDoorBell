@@ -9,7 +9,7 @@ def lambda_handler(event, context):
     OutputFormat='mp3',
     Text=my_text,
     TextType='text',
-    VoiceId='Emma' 
+    VoiceId='Joanna'
     )
-
+    print polly_response
     
