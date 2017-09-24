@@ -50,6 +50,7 @@ def trainPhotos():
 	table.put_item(
 		Item={
 			"Name": str(name),
+			"UUID": str(uuid.uuid4()),
 			"FaceID": str(faceID)
 			}
 	)
@@ -81,7 +82,7 @@ def identify():
 	name = table.query(
 		IndexName='FaceID-index',
 		KeyConditionExpression=Key('FaceID').eq(FaceID)
-	)["Items"][0]["Name"]
+	)[u"Items"][0][u"Name"]
 
 	table = dynamodb.Table('Here')
 	table.put_item(
